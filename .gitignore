@@ -4,3 +4,6 @@ Telegram_prep
 Telegram_data
 chromedriver
 isavosss.session
+__pycache__/
+final_data/
+tg_loggs/

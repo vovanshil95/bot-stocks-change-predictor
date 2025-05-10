@@ -94,12 +94,17 @@ def add_target_tg(companies):
             df.rename(columns={'timestamp':'date'})
         df = df[df['date'] != 'No time']
         df['date'] = pd.to_datetime(df['date'])
+        if df['date'].iloc[0].tz is None:
+            df['date'] = df['date'].astype("datetime64[ns]")
+        else:
+            df['date'] = df['date'].dt.tz_localize(None).astype("datetime64[ns]")
+
         df.drop_duplicates(inplace=True)
         df.sort_values('date', ignore_index=True, inplace=True)
 
         for com in comp:
             price = pd.read_csv(f'Stock_data/1 мин./{com}.csv')
-            price['timestamp'] = pd.to_datetime(price['timestamp'])
+            price['timestamp'] = pd.to_datetime(price['timestamp']).astype("datetime64[ns]")
             price.rename(columns={'timestamp':'date'}, inplace=True)
             price.sort_values('date', ignore_index=True, inplace=True)
             for col in cols:
@@ -124,11 +129,17 @@ def add_target_bin_tg(companies):
     
     for file in files:
         df = pd.read_csv(f'Telegram_prep/{file}')
-        df['date'] = pd.to_datetime(df['date']) 
+        df['date'] = pd.to_datetime(df['date'])
+        if df['date'].iloc[0].tz is None:
+            df['date'] = df['date'].astype("datetime64[ns]")
+        else:
+            df['date'] = df['date'].dt.tz_localize(None).astype("datetime64[ns]")
+
+        df.sort_values(by='date', inplace=True)
 
         for com in comp:
             price = pd.read_csv(f'Stock_data/1 мин./{com}.csv')
-            price['timestamp'] = pd.to_datetime(price['timestamp'])
+            price['timestamp'] = pd.to_datetime(price['timestamp']).astype("datetime64[ns]")
             price.rename(columns={'timestamp':'date'}, inplace=True)
             price.sort_values('date', ignore_index=True, inplace=True)
             prev_price = pd.merge_asof(df, price, on='date', direction='backward')['close']
